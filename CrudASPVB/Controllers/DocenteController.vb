@@ -1,6 +1,7 @@
 ﻿Imports System.Data.SqlClient
 Imports System.Reflection
 Imports System.Web.Mvc
+Imports Microsoft.AspNetCore.Mvc
 
 Namespace Controllers
     Public Class DocenteController
@@ -9,57 +10,39 @@ Namespace Controllers
         Private _objrepo As DocenteRepository = New DocenteRepository()
         Private _myfunction As Myfunctions = New Myfunctions()
 
-        Function getDocentes() As List(Of Docente)
-            Dim dtDocentes As DataTable = _objrepo.GetDocente()
-            Dim ltsDocente As List(Of Docente) = _myfunction.ConvertDataTableToList(Of Docente)(dtDocentes)
-            Return ltsDocente
+        Function Index() As ActionResult
+            Return View()
         End Function
 
-        Function Guardar() As ActionResult
+        <HttpGet>
+        Public Function getDocentes() As String
 
-            Dim objDocente As New Docente()
-            Return View("Alter", objDocente)
-
-        End Function
-        Function Editar(id? As Integer) As ActionResult
-            If id Is Nothing Then
-                Return View()
-            End If
-
-            Dim objDocente = _objrepo.GetDocenteById(id)
-            Return View("Alter", objDocente)
+            Dim dtDocente As DataTable = _objrepo.GetDocente()
+            Dim ltsCurso As List(Of Docente) = _myfunction.ConvertDataTableToList(Of Docente)(dtDocente)
+            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
+            Dim json As String = serializer.Serialize(ltsCurso)
+            Return json
 
         End Function
 
-        Function Eliminar(id? As Integer) As ActionResult
-            If id Is Nothing Then
-                Return View()
-            End If
+        <HttpPost>
+        Function alterDocente(objDocente As Docente) As String
+
+            Dim resultQuery = _objrepo.alterDocente(objDocente)
+            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
+            Dim json As String = serializer.Serialize(resultQuery)
+            Return json
+
+        End Function
+
+        <HttpPost>
+        Function deleteDocente(id? As Integer) As String
 
             Dim objDocente = _objrepo.deleteDocente(id)
-            Return RedirectToAction(NameOf(Index))
+            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
+            Dim json As String = serializer.Serialize(objDocente)
+            Return json
 
-        End Function
-
-        <HttpPost>
-        Function Editar(docente As Docente) As ActionResult
-
-            Dim objDocente = _objrepo.alterDocente(docente)
-            Return RedirectToAction(NameOf(Index))
-
-        End Function
-
-        <HttpPost>
-        Function Guardar(docente As Docente) As ActionResult
-
-            Dim objDocente = _objrepo.alterDocente(docente)
-            Return RedirectToAction(NameOf(Index))
-
-        End Function
-        Function Index() As ActionResult
-            Dim ltsDocentes As New List(Of Docente)()
-            ltsDocentes = getDocentes()
-            Return View(ltsDocentes)
         End Function
 
 

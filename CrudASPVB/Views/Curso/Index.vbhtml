@@ -30,7 +30,7 @@ End Code
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Back to List", "Index")
+    @*@Html.ActionLink("Back to List", "Index")*@
 </p>
 
 
