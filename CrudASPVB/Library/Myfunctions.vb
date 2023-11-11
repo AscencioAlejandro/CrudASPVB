@@ -1,6 +1,9 @@
 ﻿Imports System.Reflection
+Imports Newtonsoft.Json
+Imports Newtonsoft.Json.Converters
 
 Public Class Myfunctions
+
     Function ConvertDataTableToList(Of T)(ByVal dataTable As DataTable) As List(Of T)
         Dim list As New List(Of T)
 
@@ -18,4 +21,9 @@ Public Class Myfunctions
 
         Return list
     End Function
+
+
+
+
+
 End Class

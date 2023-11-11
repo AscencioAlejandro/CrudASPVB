@@ -1,8 +1,8 @@
-﻿@ModelType List(Of CrudASPVB.InscripcionDetalle)
-@Imports System.Data
+﻿
 @Code
+
     ViewData("Title") = "Index"
-    Dim dataInscripcion As List(Of InscripcionDetalle) = Model
+
 End Code
 
 <h2>Index</h2>
@@ -10,88 +10,337 @@ End Code
 <div>
     <h4>Docente</h4>
     <hr />
-    <dl class="dl-horizontal">
-        <a class="btn btn-success text-white" href="@Url.Action("Guardar")">Nuevo Registro</a>
-        <div class="bs-example" data-example-id="bordered-table">
-            <table class="table-futurista ">
-                <thead>
-                    <tr>
 
-                        <th>Curso Asignado</th>
-                        <th>Nombre de Docente</th>
-                        <th>Fecha de Inscripcion</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @For Each val As InscripcionDetalle In dataInscripcion
-                        @<tr>
-    <td>@val.descripcion_curso</td>
-    <td>@val.descripcion_docente</td>
-    <td>@val.fecha</td>
-    <td>
-        <a class="btn btn-primary text-white" href="@Url.Action("Editar", New With {.id = val.id_inscripcion})">Editar</a>
-        <a class="btn btn-danger text-white" href="@Url.Action("Eliminar", New With {.id = val.id_inscripcion})">Eliminar</a>
-    </td>
-</tr>
-                    Next
+    <dl class="dl-horizontal" id="blockAdd">
+        <div class="form-inline">
 
-                </tbody>
-            </table>
-        </div>
+            <div id="notifycmbDocente" class="form-group ">
+                <label for="cmbDocente">Seleccione un Docente (*)</label>
+                <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" id="cmbDocente" tabindex="-1" aria-hidden="true">
+                    <option selected="selected" value="0" disabled="disabled">Seleccione una Opcion </option>
+                </select>
+            </div>
+
+            <div id="notifycmbCurso" class="form-group">
+                <label for="cmbCurso">Seleccione un Curso (*)</label>
+                <select class="form-control select2 select2-hidden-accessible" style="width: 100%; " id="cmbCurso" tabindex="-1" aria-hidden="true">
+                    <option selected="selected" value="0" disabled="disabled">Seleccione una Opcion </option>
+                </select>
+            </div>
+
+            <div id="notifycmbCurso" class="form-group">
+                <div class="buttonspaceTop"></div>
+                <a class="btn btn-success text-white" id="btnAction"><span id="lbltitleaction"></span></a>
+                <a class="btn btn-success text-white" id="btnClear">Nuevo Registro</a>
+            </div>
+
+            </div>
+
+</dl>
+
+<dl class="dl-horizontal" id="blockList">
+    <div class="bs-example" data-example-id="bordered-table">
+        <table class="table-futurista ">
+            <thead>
+                <tr>
+
+                    <th>Curso Asignado</th>
+                    <th>Nombre de Docente</th>
+                    <th>Fecha de Inscripcion</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tblshowinscripciones">
+            </tbody>
+        </table>
+    </div>
 
 
-    </dl>
+</dl>
+
+
+
 </div>
 <p>
 
-    @Html.ActionLink("Back to List", "Index")
+    @*@Html.ActionLink("Back to List", "Index")*@
 </p>
 
-<style>
-    /* Estilos generales para la tabla */
-    .table-futurista {
-        border-collapse: collapse;
-        width: 100%;
-        border: 1px solid #ccc;
-        font-family: Arial, sans-serif;
-    }
+<script>
+    $(document).ready(function () {
 
-        /* Estilo para las celdas encabezado */
-        .table-futurista th {
-            background-color: #333;
-            color: #fff;
-            padding: 12px;
-            text-align: left;
+        $('.select2').select2();
+
+        let dataGlobal;
+        let dataSanitizated = 0;
+        let titlemodal = "Guardar Inscripcion";
+        $("#lbltitleaction").text(titlemodal);
+        $("#btnClear").hide();
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: true
+        })
+
+        fill_tbl();
+        fill_cmb_docentes();
+        fill_cmb_cursos();
+
+        function reloadComponents() {
+
+            clean();
+            fill_tbl();
         }
 
-        /* Estilo para las celdas de datos */
-        .table-futurista td {
-            border: 1px solid #ccc;
-            padding: 8px;
+        function fill_cmb_cursos() {
+
+            $.ajax({
+                type: 'GET',
+                url: '/Curso/getCursos',
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                 
+                    let fila = '';
+
+                    var selectElement = $("#cmbCurso");
+
+                    $.each(data, function (index, item) {
+                        selectElement.append($('<option>', {
+                            value: item.id_curso,
+                            text: item.nombre
+                        }));
+                    });
+
+                    // $("#tblshowinscripciones").html(fila);
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al obtener los datos:', error);
+                    console.log(xhr.responseText);
+                }
+            });
         }
 
-        /* Efecto de transición al pasar el cursor sobre las filas */
-        .table-futurista tr:hover {
-            background-color: #f2f2f2;
-            transition: background-color 0.3s;
+        function fill_cmb_docentes() {
+
+
+            $.ajax({
+                type: 'GET',
+                url: '/Docente/getDocentes',
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                   
+                    let fila = '';
+
+                    var selectElement = $("#cmbDocente");
+
+                    $.each(data, function (index, item) {
+                        selectElement.append($('<option>', {
+                            value: item.id_docente,
+                            text: item.nombreCompleto
+                        }));
+                    });
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al obtener los datos:', error);
+                    console.log(xhr.responseText);
+                }
+            });
+
         }
 
-        /* Estilo para las celdas de encabezado cuando se desplaza la página */
-        .table-futurista th.sticky {
-            position: sticky;
-            top: 0;
-            z-index: 2;
+        function fill_tbl() {
+
+            $.ajax({
+                type: 'GET',
+                url: '/Inscripcion/getInscripciones',
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    dataGlobal = data;
+                    let fila = '';
+                
+                    data.forEach(function (obj) {
+                      
+                        fila += "<tr>" +
+                            "<td>" + obj.descripcion_curso + "</td>" +
+                            "<td>" + obj.descripcion_docente + "</td>" +
+                            "<td>" + parseDateFromAspNetJson(obj.fecha) + "</td>" +
+                            "<td>" +
+                            "<a class='btn btn-primary text-white btnupdateaction buttonspace' data-idrecord='" + obj.id_inscripcion + "'>Editar</a>" +
+                            "<a class='btn btn-danger text-white btndeleteaction' data-idrecord='" + obj.id_inscripcion + "'>Eliminar</a>" +
+                            "</td>" +
+                            "</tr>";
+                    });
+
+                    $("#tblshowinscripciones").html(fila);
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al obtener los datos:', error);
+                    console.log(xhr.responseText);
+                }
+            });
         }
 
-        /* Estilo para las celdas de datos con fondo oscuro */
-        .table-futurista .dark-cell {
-            background-color: #444;
-            color: #fff;
+        function showRecord(id) {
+            $("#btnClear").show();
+            let dataSelected = dataGlobal.find(data => data.id_inscripcion === id);
+            dataSanitizated = dataSelected.id_inscripcion;
+            if (dataSelected != undefined) {
+                    
+                $("#cmbCurso").val(dataSelected.id_curso);
+                $("#cmbDocente").val(dataSelected.id_docente);
+
+                $("#cmbCurso, #cmbDocente").trigger("change");
+
+            } else {
+                return null;
+            }        
+
         }
 
-        /* Estilo para el texto en negrita */
-        .table-futurista strong {
-            font-weight: bold;
+        function validarSelects(selects) {
+            var camposValidos = true;
+
+            $.each(selects, function (index, selectId) {
+                var valorSelect = $('#' + selectId).val();
+                console.log(selectId);
+                if (!valorSelect || valorSelect.trim() === '0') {
+                    toastr.error("Los campos (*) son obligatorios", "Notificacion de Sistema");
+                    $("#" + "notify" + selectId).addClass("select-vacio");
+                    camposValidos = false;
+                }
+                else {
+                    $("#" + "notify" + selectId).removeClass("select-vacio");
+                }
+            });
+
+            return camposValidos;
         }
-</style>
+
+        function parseDateFromAspNetJson(dateString) {
+      
+            var milliseconds = parseInt(dateString.replace("/Date(", "").replace(")/", ""), 10);
+            var date = new Date(milliseconds);
+            return date.toLocaleString();
+        }
+
+        $("#btnClear").click(function () {
+
+            clean();
+
+        });
+
+        function clean() {
+
+            let titlemodal = "Guardar Inscripcion";
+            $("#lbltitleaction").text(titlemodal);
+            $("#btnClear").hide();
+
+            $("#cmbCurso").val(0);
+            $("#cmbDocente").val(0);
+
+            $("#cmbCurso, #cmbDocente").trigger("change");
+
+        }
+           
+        $('#btnAction').click(function () {
+
+            var camposAValidar = ['cmbDocente', 'cmbCurso'];
+            var resultValidation = validarSelects(camposAValidar);
+
+            if (resultValidation != false) {
+
+                let values = {
+                    id_inscripcion: dataSanitizated,
+                    id_docente: $("#cmbDocente").val(),
+                    id_curso: $("#cmbCurso").val()
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Inscripcion/alterInscripcion',
+                    contentType: 'application/json',
+                    data: JSON.stringify(values),
+                    success: function (response) {  
+
+
+                        swalWithBootstrapButtons.fire(
+                            'Notificacion',
+                            'Accion Realizada con Exito!',
+                            'success'
+                        );
+
+                        reloadComponents();
+
+                    },
+                    error: function (error) {
+
+
+                    }
+
+                });
+            }
+         
+
+        });
+
+        $(document).on("click", ".btnupdateaction", function () {
+
+            titlemodal = "Actualizar Inscripcion";
+            $("#lbltitleaction").text(titlemodal);
+            let id = $(this).data("idrecord");
+            showRecord(id);
+
+        });
+
+        $(document).on("click", ".btndeleteaction", function () {
+
+            let id = $(this).data("idrecord");
+
+            swalWithBootstrapButtons.fire({
+                title: "Estas Seguro?",
+                text: "Si ejecutas esta accion no podras recuperar este registro!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Si, Borrar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Inscripcion/deleteInscripcion/' + id,
+                        contentType: 'application/json',
+                        data: {},
+                        success: function (response) {
+
+                            swalWithBootstrapButtons.fire(
+                                'Notificacion',
+                                'Accion Realizada con Exito!',
+                                'success'
+                            );
+
+                            reloadComponents();
+
+                        },
+                        error: function (error) {
+
+
+                        }
+                    });
+                }
+            });
+
+        });
+
+
+    });
+</script>

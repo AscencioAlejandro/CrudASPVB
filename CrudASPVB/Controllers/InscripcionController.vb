@@ -10,94 +10,45 @@ Namespace Controllers
         Private _objdocente As DocenteRepository = New DocenteRepository()
         Private _myfunction As Myfunctions = New Myfunctions()
 
-
-        Function getInscripciones() As List(Of InscripcionDetalle)
+        <HttpGet>
+        Function getInscripciones() As String
 
             Dim dtInscripciones As DataTable = _objrepo.GetInscripcion()
             Dim ltsInscripcion As List(Of InscripcionDetalle) = _myfunction.ConvertDataTableToList(Of InscripcionDetalle)(dtInscripciones)
-            Return ltsInscripcion
+            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
+            Dim json As String = serializer.Serialize(ltsInscripcion)
 
-        End Function
-
-        Function Guardar() As ActionResult
-
-            'Dim selectedcursos = New List(Of SelectListItem)()
-            'Dim selecteddocentes = New List(Of SelectListItem)()
-
-            Dim ltscursos = New List(Of Curso)()
-            Dim ltsdocentes = New List(Of Docente)()
-
-            Dim dtcurso = _objcurso.GetCurso()
-            Dim dtdocente = _objdocente.GetDocente()
-
-            ltscursos = _myfunction.ConvertDataTableToList(Of Curso)(dtcurso)
-            ltsdocentes = _myfunction.ConvertDataTableToList(Of Docente)(dtdocente)
-
-            ViewBag.SelectListDeCursos = New SelectList(ltscursos, "id_curso", "nombre")
-            ViewBag.SelectListDeDocentes = New SelectList(ltsdocentes, "id_docente", "nombreCompleto")
-
-            Dim objInscripcion As New Inscripcion()
-            Return View("Alter", objInscripcion)
-
-        End Function
-        Function Editar(id? As Integer) As ActionResult
-            If id Is Nothing Then
-                Return View()
-            End If
-
-            Dim objInscripcion = _objrepo.GetInscripcionById(id)
-
-            Dim ltscursos = New List(Of Curso)()
-            Dim ltsdocentes = New List(Of Docente)()
-
-            Dim dtcurso = _objcurso.GetCurso()
-            Dim dtdocente = _objdocente.GetDocente()
-
-            ltscursos = _myfunction.ConvertDataTableToList(Of Curso)(dtcurso)
-            ltsdocentes = _myfunction.ConvertDataTableToList(Of Docente)(dtdocente)
-
-            ViewBag.SelectListDeCursos = New SelectList(ltscursos, "id_curso", "nombre")
-            ViewBag.SelectListDeDocentes = New SelectList(ltsdocentes, "id_docente", "nombreCompleto")
-
-            ViewBag.IdCursoSeleccionado = objInscripcion.id_curso
-            ViewBag.IdDocenteSeleccionado = objInscripcion.id_docente
-
-            Return View("Alter", objInscripcion)
-
-        End Function
-
-        Function Eliminar(id? As Integer) As ActionResult
-            If id Is Nothing Then
-                Return View()
-            End If
-
-            Dim objInscripcion = _objrepo.deleteInscripcion(id)
-            Return RedirectToAction(NameOf(Index))
+            Return json
 
         End Function
 
         <HttpPost>
-        Function Editar(Inscripcion As Inscripcion) As ActionResult
+        Function deleteInscripcion(id? As Integer) As String
 
-            Dim objInscripcion = _objrepo.alterInscripcion(Inscripcion)
-            Return RedirectToAction(NameOf(Index))
+            Dim resultQuery = _objrepo.deleteInscripcion(id)
+            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
+            Dim json As String = serializer.Serialize(resultQuery)
+            Return json
 
         End Function
 
         <HttpPost>
-        Function Guardar(Inscripcion As Inscripcion) As ActionResult
+        Function alterInscripcion(Inscripcion As Inscripcion) As String
 
-            Dim objInscripcion = _objrepo.alterInscripcion(Inscripcion)
-            Return RedirectToAction(NameOf(Index))
+            Dim resultQuery = _objrepo.alterInscripcion(Inscripcion)
+            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
+            Dim json As String = serializer.Serialize(resultQuery)
+            Return json
 
         End Function
+
+
         Function Index() As ActionResult
 
-            Dim ltsInscripcions As New List(Of InscripcionDetalle)()
-            ltsInscripcions = getInscripciones()
-            Return View(ltsInscripcions)
+            Return View()
 
         End Function
+
 
     End Class
 End Namespace

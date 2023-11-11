@@ -131,7 +131,7 @@ End Code
                         fila += "<tr>" +
                             "<td>" + obj.nombre + " " + obj.apellido + "</td>" +
                             "<td>" +
-                            "<a class='btn btn-primary text-white btnupdateaction' data-idrecord='" + obj.id_docente + "'>Editar</a>" +
+                            "<a class='btn btn-primary text-white btnupdateaction buttonspace' data-idrecord='" + obj.id_docente + "'>Editar</a>" +
                             "<a class='btn btn-danger text-white btndeleteaction' data-idrecord='" + obj.id_docente + "'>Eliminar</a>" +
                             "</td>" +
                             "</tr>";
@@ -206,7 +206,6 @@ End Code
           
         });
 
-
         $('#btnSaveModal').click(function () {
             titlemodal = "Guardar"
             $('#titlemodal').text(titlemodal);
@@ -280,51 +279,3 @@ End Code
 
     });
 </script>
-
-<style>
-    /* Estilos generales para la tabla */
-    .table-futurista {
-        border-collapse: collapse;
-        width: 100%;
-        border: 1px solid #ccc;
-        font-family: Arial, sans-serif;
-    }
-
-        /* Estilo para las celdas encabezado */
-        .table-futurista th {
-            background-color: #333;
-            color: #fff;
-            padding: 12px;
-            text-align: left;
-        }
-
-        /* Estilo para las celdas de datos */
-        .table-futurista td {
-            border: 1px solid #ccc;
-            padding: 8px;
-        }
-
-        /* Efecto de transición al pasar el cursor sobre las filas */
-        .table-futurista tr:hover {
-            background-color: #f2f2f2;
-            transition: background-color 0.3s;
-        }
-
-        /* Estilo para las celdas de encabezado cuando se desplaza la página */
-        .table-futurista th.sticky {
-            position: sticky;
-            top: 0;
-            z-index: 2;
-        }
-
-        /* Estilo para las celdas de datos con fondo oscuro */
-        .table-futurista .dark-cell {
-            background-color: #444;
-            color: #fff;
-        }
-
-        /* Estilo para el texto en negrita */
-        .table-futurista strong {
-            font-weight: bold;
-        }
-</style>
