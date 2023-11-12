@@ -1,4 +1,5 @@
 ﻿Imports System.Data.SqlClient
+Imports System.Net
 Imports System.Reflection
 Imports System.Web.Mvc
 Imports Microsoft.AspNetCore.Mvc
@@ -36,12 +37,22 @@ Namespace Controllers
         End Function
 
         <HttpPost>
-        Function deleteDocente(id? As Integer) As String
+        Function deleteDocente(id? As Integer) As ActionResult
 
-            Dim objDocente = _objrepo.deleteDocente(id)
-            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
-            Dim json As String = serializer.Serialize(objDocente)
-            Return json
+            Try
+
+                Dim objCurso = _objrepo.deleteDocente(id)
+                If Not objCurso Then
+                    Response.StatusCode = HttpStatusCode.InternalServerError
+                    Return Content("Este Registro esta Relacionado en otra Tabla")
+                End If
+                Return Json(objCurso, JsonRequestBehavior.AllowGet)
+
+            Catch ex As Exception
+
+                Response.StatusCode = HttpStatusCode.InternalServerError
+                Return Content("Error al procesar la solicitud: " & ex.Message)
+            End Try
 
         End Function
 

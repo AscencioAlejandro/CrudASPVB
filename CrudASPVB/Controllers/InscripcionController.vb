@@ -1,5 +1,7 @@
-﻿Imports System.Web.Mvc
+﻿Imports System.Net
+Imports System.Web.Mvc
 Imports CrudASPVB.Repository
+Imports Newtonsoft.Json
 
 Namespace Controllers
     Public Class InscripcionController
@@ -23,22 +25,45 @@ Namespace Controllers
         End Function
 
         <HttpPost>
-        Function deleteInscripcion(id? As Integer) As String
+        Function deleteInscripcion(id? As Integer) As ActionResult
 
-            Dim resultQuery = _objrepo.deleteInscripcion(id)
-            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
-            Dim json As String = serializer.Serialize(resultQuery)
-            Return json
+            Try
+
+                Dim objInscripcion = _objrepo.deleteInscripcion(id)
+
+                Return Json(objInscripcion, JsonRequestBehavior.AllowGet)
+                ModelState.Clear()
+
+            Catch ex As Exception
+
+                Response.StatusCode = HttpStatusCode.InternalServerError
+                Return Content("Error al procesar la solicitud: " & ex.Message)
+
+            End Try
 
         End Function
 
         <HttpPost>
-        Function alterInscripcion(Inscripcion As Inscripcion) As String
+        Function alterInscripcion(Inscripcion As Inscripcion) As ActionResult
 
-            Dim resultQuery = _objrepo.alterInscripcion(Inscripcion)
-            Dim serializer As New System.Web.Script.Serialization.JavaScriptSerializer()
-            Dim json As String = serializer.Serialize(resultQuery)
-            Return json
+            Try
+
+                If Not ModelState.IsValid Then
+                    Dim errorsJson = JsonConvert.SerializeObject(ModelState)
+                    Response.StatusCode = HttpStatusCode.InternalServerError
+                    Return Content(errorsJson, "application/json")
+                End If
+
+                Dim objInscripcion = _objrepo.alterInscripcion(Inscripcion)
+                Return Json(objInscripcion, JsonRequestBehavior.AllowGet)
+                ModelState.Clear()
+
+            Catch ex As Exception
+
+                Response.StatusCode = HttpStatusCode.InternalServerError
+                Return Content("Error al procesar la solicitud: " & ex.Message)
+
+            End Try
 
         End Function
 

@@ -1,15 +1,15 @@
 ﻿@Code
-    ViewData("Title") = "Index"
+'ViewData("Title") = "Index"
 End Code
 
-<h2>Index</h2>
+
 
 <div>
-    <h4>Docente</h4>
+    <h2>Docentes</h2>
     <hr />
     <dl class="dl-horizontal">
         <a class="btn btn-success text-white" id="btnSaveModal">Nuevo Registro</a>
-        <div class="bs-example" data-example-id="bordered-table">
+        <div class="bs-example" data-example-id="bordered-table" id="tblPrincipal">
             <table class="table-futurista ">
                 <thead>
                     <tr>
@@ -25,6 +25,15 @@ End Code
 
 
     </dl>
+
+    <div class="panel panel-primary" id="banner">
+        <div class="panel-heading">
+            <h3 class="panel-title">Notificacion de Sistema</h3>
+        </div>
+        <div class="panel-body">
+            No hay datos en la Tabla
+        </div>
+    </div>
 </div>
 <p>
 
@@ -115,8 +124,8 @@ End Code
             fill_tbl();
         }
 
+   
         function fill_tbl() {
-
             $.ajax({
                 type: 'GET',
                 url: '/Docente/getDocentes',
@@ -124,21 +133,30 @@ End Code
                 async: false,
                 success: function (data) {
                     dataGlobal = data;
-                    let fila = '';
+                    let fila = "";
 
-                    data.forEach(function (obj) {
+                    if (data.length !== 0) {
 
-                        fila += "<tr>" +
-                            "<td>" + obj.nombre + " " + obj.apellido + "</td>" +
-                            "<td>" +
-                            "<a class='btn btn-primary text-white btnupdateaction buttonspace' data-idrecord='" + obj.id_docente + "'>Editar</a>" +
-                            "<a class='btn btn-danger text-white btndeleteaction' data-idrecord='" + obj.id_docente + "'>Eliminar</a>" +
-                            "</td>" +
-                            "</tr>";
-                    });
+                        $("#tblPrincipal").show();
+                        $("#banner").hide();
 
-                    $("#tblshowdocentes").html(fila);
+                        console.log(data);
 
+                        data.forEach(function (obj) {
+                            fila += "<tr>" +
+                                "<td>" + obj.nombre + " " + obj.apellido + "</td>" +
+                                "<td>" +
+                                "<a class='btn btn-primary text-white btnupdateaction buttonspace' data-idrecord='" + obj.id_docente + "'>Editar</a>" +
+                                "<a class='btn btn-danger text-white btndeleteaction' data-idrecord='" + obj.id_docente + "'>Eliminar</a>" +
+                                "</td>" +
+                                "</tr>";
+                        });
+
+                        $("#tblshowdocentes").html(fila);
+                    } else {
+                        $("#banner").show();
+                        $("#tblPrincipal").hide();
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error('Error al obtener los datos:', error);
@@ -266,9 +284,9 @@ End Code
                             reloadComponents();
 
                         },
-                        error: function (error) {
+                        error: function (jqXHR, textStatus, errorThrown) {
 
-
+                            toastr.error(jqXHR.responseText, "Mensaje de Sistema");
                         }
                     });
                 }

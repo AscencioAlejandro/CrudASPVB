@@ -2,7 +2,7 @@
 Imports System.Web.Mvc
 Imports CrudASPVB.Repository
 Imports System.Net.Http
-
+Imports Newtonsoft.Json
 
 Namespace Controllers
     Public Class CursoController
@@ -25,28 +25,37 @@ Namespace Controllers
         End Function
 
         <HttpPost>
-        Function alterCurso(Curso As Curso) As String
+        Function alterCurso(Curso As Curso) As ActionResult
+            Try
 
-            'If Not ModelState.IsValid Then
-            '    Return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState)
-            'End If
+                Dim objCurso = _objrepo.alterCurso(Curso)
+                Return Json(objCurso, JsonRequestBehavior.AllowGet)
 
-            Dim objCurso = _objrepo.alterCurso(Curso)
-            Dim json As String = _serializer.Serialize(objCurso)
-            Return json
+            Catch ex As Exception
+
+                Response.StatusCode = HttpStatusCode.InternalServerError
+                Return Content("Error al procesar la solicitud: " & ex.Message)
+            End Try
 
         End Function
 
         <HttpPost>
-        Function deleteCurso(id? As Integer) As String
+        Function deleteCurso(id? As Integer) As ActionResult
 
-            If Not ModelState.IsValid Then
-                Return _serializer.Serialize(ModelState)
-            End If
+            Try
 
-            Dim objCurso = _objrepo.deleteCurso(id)
-            Dim json As String = _serializer.Serialize(objCurso)
-            Return json
+                Dim objCurso = _objrepo.deleteCurso(id)
+                If Not objCurso Then
+                    Response.StatusCode = HttpStatusCode.InternalServerError
+                    Return Content("Este Registro esta Relacionado en otra Tabla")
+                End If
+                Return json(objCurso, JsonRequestBehavior.AllowGet)
+
+            Catch ex As Exception
+
+                Response.StatusCode = HttpStatusCode.InternalServerError
+                Return Content("Error al procesar la solicitud: " & ex.Message)
+            End Try
 
         End Function
 

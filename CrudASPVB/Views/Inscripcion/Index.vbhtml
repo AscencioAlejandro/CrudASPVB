@@ -1,14 +1,14 @@
 ﻿
 @Code
 
-    ViewData("Title") = "Index"
+'ViewData("Title") = "Index"
 
 End Code
 
-<h2>Index</h2>
+
 
 <div>
-    <h4>Docente</h4>
+    <h2>Inscripciones</h2>
     <hr />
 
     <dl class="dl-horizontal" id="blockAdd">
@@ -34,31 +34,38 @@ End Code
                 <a class="btn btn-success text-white" id="btnClear">Nuevo Registro</a>
             </div>
 
-            </div>
+        </div>
 
-</dl>
+    </dl>
 
-<dl class="dl-horizontal" id="blockList">
-    <div class="bs-example" data-example-id="bordered-table">
-        <table class="table-futurista ">
-            <thead>
-                <tr>
+    <dl class="dl-horizontal" id="blockList">
+        <div class="bs-example" data-example-id="bordered-table" id="tblPrincipal">
+            <table class="table-futurista ">
+                <thead>
+                    <tr>
 
-                    <th>Curso Asignado</th>
-                    <th>Nombre de Docente</th>
-                    <th>Fecha de Inscripcion</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tblshowinscripciones">
-            </tbody>
-        </table>
+                        <th>Curso Asignado</th>
+                        <th>Nombre de Docente</th>
+                        <th>Fecha de Inscripcion</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tblshowinscripciones">
+                </tbody>
+            </table>
+        </div>
+
+
+    </dl>
+
+    <div class="panel panel-primary" id="banner">
+        <div class="panel-heading">
+            <h3 class="panel-title">Notificacion de Sistema</h3>
+        </div>
+        <div class="panel-body">
+            No hay datos en la Tabla
+        </div>
     </div>
-
-
-</dl>
-
-
 
 </div>
 <p>
@@ -102,19 +109,25 @@ End Code
                 dataType: 'json',
                 async: false,
                 success: function (data) {
-                 
-                    let fila = '';
 
-                    var selectElement = $("#cmbCurso");
+                    if (data.length !== 0) {
+                        $("#cmbCurso").prop("disabled", false).trigger("change.select2");
+                        var selectElement = $("#cmbCurso");
 
-                    $.each(data, function (index, item) {
-                        selectElement.append($('<option>', {
-                            value: item.id_curso,
-                            text: item.nombre
-                        }));
-                    });
+                        $.each(data, function (index, item) {
+                            selectElement.append($('<option>', {
+                                value: item.id_curso,
+                                text: item.nombre
+                            }));
+                        });
 
-                    // $("#tblshowinscripciones").html(fila);
+                    }
+                    else {
+                   
+                        $("#cmbCurso").prop("disabled", true).trigger("change.select2");
+                      
+                    }
+                                       
 
                 },
                 error: function (xhr, status, error) {
@@ -132,18 +145,22 @@ End Code
                 url: '/Docente/getDocentes',
                 dataType: 'json',
                 async: false,
-                success: function (data) {
-                   
-                    let fila = '';
+                success: function (data) {                  
 
-                    var selectElement = $("#cmbDocente");
+                    if (data.length !== 0) {
+                        $("#cmbDocente").prop("disabled", false).trigger("change.select2");
+                        var selectElement = $("#cmbDocente");
+                        $.each(data, function (index, item) {
+                            selectElement.append($('<option>', {
+                                value: item.id_docente,
+                                text: item.nombreCompleto
+                            }));
+                        });
+                    }
+                    else {
 
-                    $.each(data, function (index, item) {
-                        selectElement.append($('<option>', {
-                            value: item.id_docente,
-                            text: item.nombreCompleto
-                        }));
-                    });
+                        $("#cmbDocente").prop("disabled", true).trigger("change.select2");
+                    }
 
                 },
                 error: function (xhr, status, error) {
@@ -155,7 +172,6 @@ End Code
         }
 
         function fill_tbl() {
-
             $.ajax({
                 type: 'GET',
                 url: '/Inscripcion/getInscripciones',
@@ -163,23 +179,33 @@ End Code
                 async: false,
                 success: function (data) {
                     dataGlobal = data;
-                    let fila = '';
-                
-                    data.forEach(function (obj) {
-                      
-                        fila += "<tr>" +
-                            "<td>" + obj.descripcion_curso + "</td>" +
-                            "<td>" + obj.descripcion_docente + "</td>" +
-                            "<td>" + parseDateFromAspNetJson(obj.fecha) + "</td>" +
-                            "<td>" +
-                            "<a class='btn btn-primary text-white btnupdateaction buttonspace' data-idrecord='" + obj.id_inscripcion + "'>Editar</a>" +
-                            "<a class='btn btn-danger text-white btndeleteaction' data-idrecord='" + obj.id_inscripcion + "'>Eliminar</a>" +
-                            "</td>" +
-                            "</tr>";
-                    });
+                    let fila = "";
 
-                    $("#tblshowinscripciones").html(fila);
+                    if (data.length !== 0) {                       
+                     
+                        $("#tblPrincipal").show();
+                        $("#banner").hide();
 
+                        console.log(data);
+
+                        data.forEach(function (obj) {
+                            fila += "<tr>" +
+                                "<td>" + obj.descripcion_curso + "</td>" +
+                                "<td>" + obj.descripcion_docente + "</td>" +
+                                "<td>" + parseDateFromAspNetJson(obj.fecha) + "</td>" +
+                                "<td>" +
+                                "<a class='btn btn-primary text-white btnupdateaction buttonspace' data-idrecord='" + obj.id_inscripcion + "'>Editar</a>" +
+                                "<a class='btn btn-danger text-white btndeleteaction' data-idrecord='" + obj.id_inscripcion + "'>Eliminar</a>" +
+                                "</td>" +
+                                "</tr>";
+                        });
+
+                        $("#tblshowinscripciones").html(fila);
+
+                    } else {
+                        $("#banner").show();
+                        $("#tblPrincipal").hide();
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error('Error al obtener los datos:', error);
@@ -187,7 +213,7 @@ End Code
                 }
             });
         }
-
+             
         function showRecord(id) {
             $("#btnClear").show();
             let dataSelected = dataGlobal.find(data => data.id_inscripcion === id);

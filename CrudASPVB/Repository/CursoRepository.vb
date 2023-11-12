@@ -49,9 +49,7 @@ Namespace Repository
 
                     Dim resultQuery = cmd.ExecuteNonQuery()
 
-                    If resultQuery > 1 Then
-                        Return True
-                    End If
+                    Return resultQuery > 0
 
                 End Using
             End Using
@@ -62,7 +60,6 @@ Namespace Repository
 
 
         Function deleteCurso(Valueid As Integer) As Boolean
-
             Using conn As SqlConnection = _dbConnection.OpenConnection()
                 Using cmd As New SqlCommand("DeleteCursos", conn)
                     cmd.CommandType = CommandType.StoredProcedure
@@ -75,22 +72,15 @@ Namespace Repository
                     Try
                         Dim resultQuery = cmd.ExecuteNonQuery()
 
-                        If resultQuery > 1 Then
-                            Return True
-                        End If
+                        Return resultQuery > 0
 
                     Catch ex As System.Data.SqlClient.SqlException
-
                         Console.WriteLine("Error al eliminar el registro: " & ex.Message)
-
                     End Try
-
-
                 End Using
             End Using
 
             Return False
-
         End Function
 
 

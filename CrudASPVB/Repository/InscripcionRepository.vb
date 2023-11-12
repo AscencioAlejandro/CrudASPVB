@@ -53,9 +53,7 @@ Public Class InscripcionRepository
 
                 Dim resultQuery = cmd.ExecuteNonQuery()
 
-                If resultQuery > 1 Then
-                    Return True
-                End If
+                Return resultQuery > 0
 
             End Using
         End Using
@@ -79,9 +77,7 @@ Public Class InscripcionRepository
                 Try
                     Dim resultQuery = cmd.ExecuteNonQuery()
 
-                    If resultQuery > 1 Then
-                        Return True
-                    End If
+                    Return resultQuery > 0
 
                 Catch ex As System.Data.SqlClient.SqlException
 

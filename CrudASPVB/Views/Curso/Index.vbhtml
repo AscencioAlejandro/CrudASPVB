@@ -1,19 +1,19 @@
 ﻿@*@ModelType List(Of CrudASPVB.Curso)*@
 @Imports System.Data
 @Code
-    ViewData("Title") = "Index"
-    'Dim dataCurso As List(Of Curso) = Model
+'ViewData("Title") = "Index"
+'Dim dataCurso As List(Of Curso) = Model
 End Code
 
-<h2>Index</h2>
+
 
 <div>
-    <h4>Docente</h4>
+    <h2>Cursos</h2>
     <hr />
 
-    <dl class="dl-horizontal">
+    <dl class="dl-horizontal" >
         <a class="btn btn-success text-white" id="btnSaveModal">Nuevo Registro</a>
-        <div class="bs-example" data-example-id="bordered-table">
+        <div class="bs-example" data-example-id="bordered-table" id="tblPrincipal">
             <table class="table-futurista ">
                 <thead>
                     <tr>
@@ -25,9 +25,18 @@ End Code
                 </tbody>
             </table>
         </div>
-
-
     </dl>
+
+  
+    <div class="panel panel-primary" id="banner">
+        <div class="panel-heading">
+            <h3 class="panel-title">Notificacion de Sistema</h3>
+        </div>
+        <div class="panel-body">
+            No hay datos en la Tabla
+        </div>
+    </div>
+
 </div>
 <p>
     @*@Html.ActionLink("Back to List", "Index")*@
@@ -61,6 +70,8 @@ End Code
         let dataGlobal;
         let dataSanitizated = 0;
         let titlemodal;
+        $("#tblPrincipal").hide();
+        $("#banner").hide();
 
         const swalWithBootstrapButtons = Swal.mixin({
                  customClass: {
@@ -80,7 +91,6 @@ End Code
         }
 
         function fill_tbl() {
-
             $.ajax({
                 type: 'GET',
                 url: '/Curso/getCursos',
@@ -88,21 +98,30 @@ End Code
                 async: false,
                 success: function (data) {
                     dataGlobal = data;
-                    let fila = '';
+                    let fila = "";
 
-                    data.forEach(function (obj) {
+                    if (data.length !== 0) { 
 
-                        fila += "<tr>" +
-                            "<td>" + obj.nombre + "</td>" +
-                            "<td>" +
-                            "<a class='btn btn-primary text-white btnupdateaction buttonspace' data-idrecord='" + obj.id_curso + "'>Editar</a>" +
-                            "<a class='btn btn-danger text-white btndeleteaction' data-idrecord='" + obj.id_curso + "'>Eliminar</a>" +
-                            "</td>" +
-                            "</tr>";
-                    });
+                        $("#tblPrincipal").show();
+                        $("#banner").hide();
 
-                    $("#tblshowcursos").html(fila);
+                        console.log(data);
 
+                        data.forEach(function (obj) {
+                            fila += "<tr>" +
+                                "<td>" + obj.nombre + "</td>" +
+                                "<td>" +
+                                "<a class='btn btn-primary text-white btnupdateaction buttonspace' data-idrecord='" + obj.id_curso + "'>Editar</a>" +
+                                "<a class='btn btn-danger text-white btndeleteaction' data-idrecord='" + obj.id_curso + "'>Eliminar</a>" +
+                                "</td>" +
+                                "</tr>";
+                        });
+
+                        $("#tblshowcursos").html(fila);
+                    } else {
+                        $("#banner").show();
+                        $("#tblPrincipal").hide();
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error('Error al obtener los datos:', error);
@@ -129,6 +148,12 @@ End Code
 
         }
 
+        function parseFromAspNetJson(data) {
+
+            var result = data.replace(/\\/g, "");
+            return result;
+        }
+
         $('#btnAction').click(function () {
 
             var objData = {
@@ -144,7 +169,7 @@ End Code
                     contentType: 'application/json',
                     data: JSON.stringify(objData),
                     success: function (response) {
-
+                        
                         $('#myModal').modal('hide');
                      
 
@@ -158,8 +183,9 @@ End Code
 
                     },
                     error: function (error) {
-
-
+                                        
+                        toastr.error("Error en Sistema", "Mensaje de Sistema");
+          
                     }
 
                 });
@@ -227,9 +253,9 @@ End Code
                             reloadComponents();
 
                         },
-                        error: function (error) {
-
-
+                        error: function (jqXHR, textStatus, errorThrown) {                                               
+                          
+                            toastr.error(jqXHR.responseText, "Mensaje de Sistema");
                         }
                     });
                 }
